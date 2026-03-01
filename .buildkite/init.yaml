@@ -1,0 +1,15 @@
+agents:
+  queue: "eng-default"
+steps:
+  - label: ":pipeline: Generate the pipeline"
+    commands:
+      - .buildkite/generate-pipeline.sh >| generated-pipeline.yaml
+      - buildkite-agent artifact upload generated-pipeline.yaml
+      - buildkite-agent pipeline upload generated-pipeline.yaml
+    plugins:
+      - docker#v5.12.0:
+          image: 035088524874.dkr.ecr.us-west-2.amazonaws.com/rokt-kube-cli:master-awscliv2-latest-amd64
+          mount-ssh-agent: true
+          propagate-environment: true
+          mount-buildkite-agent: true
+          environment: [SANITISED_BRANCH_NAME]

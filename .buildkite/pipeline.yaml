@@ -1,0 +1,32 @@
+  - wait: ~
+
+  - label: ":go-gopher: Run tests"
+    agents: { queue: eng-prod-us-west-2-intel-linux-build-large }
+    plugins:
+      - ecr#v2.9.0:
+          login: true
+          account_ids: "035088524874"
+          region: "us-west-2"
+      - docker#v5.12.0:
+          image: 035088524874.dkr.ecr.us-west-2.amazonaws.com/karpenter-builder:${BUILDER_TAG}
+    commands:
+      - make ci-test
+    artifact_paths:
+      - "coverage.out"
+      - "coverage.html"
+
+  - label: ":hammer_and_wrench: Build roktified karpenter image"
+    agents: { queue: eng-prod-us-west-2-intel-linux-build-large }
+    plugins:
+      - ecr#v2.8.0:
+          login: true
+          account_ids: "035088524874"
+          region: "us-west-2"
+      - docker#v5.12.0:
+          image: 035088524874.dkr.ecr.us-west-2.amazonaws.com/karpenter-builder:${BUILDER_TAG}
+          mount-ssh-agent: true
+          mount-buildkite-agent: true
+          propagate-environment: true
+          environment: [SANITISED_BRANCH_NAME]
+    commands:
+      - .buildkite/build.sh
