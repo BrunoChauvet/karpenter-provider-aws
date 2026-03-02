@@ -52,6 +52,8 @@ else
                 - ${SANITISED_BRANCH_NAME}-${BUILDKITE_COMMIT}
                 - ${BUILDER_TAG}
               add-latest-tag: false
+              additional-build-args:
+                - "ssh=default"
 EOF
 fi
 
